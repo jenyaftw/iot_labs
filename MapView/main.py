@@ -3,6 +3,7 @@ from kivy.app import App
 from kivy_garden.mapview import MapMarker, MapView
 from kivy.clock import Clock
 from lineMapLayer import LineMapLayer
+from datasource import Datasource
 
 
 class MapViewApp(App):
@@ -20,11 +21,6 @@ class MapViewApp(App):
         Викликається регулярно для оновлення мапи
         """
 
-    def check_road_quality(self):
-        """
-        Аналізує дані акселерометра для подальшого визначення
-        та відображення ям та лежачих поліцейських
-        """
 
     def update_car_marker(self, point):
         """
