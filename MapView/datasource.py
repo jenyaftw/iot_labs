@@ -66,7 +66,7 @@ class Datasource:
         processed_agent_data_list = sorted(
             [
                 ProcessedAgentData(**processed_data_json)
-                for processed_data_json in json.loads(data)
+                for processed_data_json in data
             ],
             key=lambda v: v.timestamp,
         )

@@ -16,6 +16,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import select, delete, update
 from datetime import datetime
 from pydantic import BaseModel, field_validator
+from functools import reduce
 from config import (
     POSTGRES_HOST,
     POSTGRES_PORT,
@@ -127,8 +128,6 @@ async def send_data_to_subscribers(user_id: int, data):
 @app.post("/processed_agent_data/")
 async def create_processed_agent_data(data: List[ProcessedAgentData]):
     # Insert data to database
-    # Send data to subscribers
-
     print("Creating processed agent data...")
 
     with SessionLocal() as session:
@@ -148,6 +147,16 @@ async def create_processed_agent_data(data: List[ProcessedAgentData]):
         session.commit()
         print("Success!")
 
+    # Send data to subscribers
+    def group_by_reducer(acc, item):
+        if item.agent_data.user_id not in acc:
+            acc[item.agent_data.user_id] = []
+        acc[item.agent_data.user_id].append(item)
+        return acc
+    
+    grouped_by_user_id = reduce(group_by_reducer, data, {})
+    for user_id, user_data in grouped_by_user_id.items():
+        send_data_to_subscribers(user_id, user_data)
 
 @app.get(
     "/processed_agent_data/{processed_agent_data_id}",
