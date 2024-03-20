@@ -12,11 +12,15 @@ class GpsData(BaseModel):
     latitude: float
     longitude: float
 
+class ParkingData(BaseModel):
+    empty_count: int
+    gps: GpsData
 
 class AgentData(BaseModel):
     accelerometer: AccelerometerData
     gps: GpsData
     timestamp: datetime
+    parking: ParkingData
 
     @classmethod
     @field_validator("timestamp", mode="before")
