@@ -90,45 +90,34 @@ class AgentData(BaseModel):
                 "Invalid timestamp format. Expected ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)."
             )
 
-
 class ProcessedAgentData(BaseModel):
     road_state: str
     agent_data: AgentData
 
-
 # WebSocket subscriptions
-subscriptions: Dict[int, Set[WebSocket]] = {}
-
+subscriptions: Set[WebSocket] = set()
 
 # FastAPI WebSocket endpoint
-@app.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: int):
+@app.websocket("/ws/")
+async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    if user_id not in subscriptions:
-        subscriptions[user_id] = set()
-    subscriptions[user_id].add(websocket)
+    subscriptions.add(websocket)
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        subscriptions[user_id].remove(websocket)
-
+        subscriptions.remove(websocket)
 
 # Function to send data to subscribed users
-async def send_data_to_subscribers(user_id: int, data):
-    if user_id in subscriptions:
-        for websocket in subscriptions[user_id]:
-            await websocket.send_json(json.dumps(data))
-
+async def send_data_to_subscribers(data: List[ProcessedAgentData]):
+    for websocket in subscriptions:
+        await websocket.send_json(data)
 
 # FastAPI CRUDL endpoints
-
 
 @app.post("/processed_agent_data/")
 async def create_processed_agent_data(data: List[ProcessedAgentData]):
     # Insert data to database
-    # Send data to subscribers
-
     print("Creating processed agent data...")
 
     with SessionLocal() as session:
@@ -147,7 +136,9 @@ async def create_processed_agent_data(data: List[ProcessedAgentData]):
 
         session.commit()
         print("Success!")
-
+        
+    # Send data to subscribers
+    await send_data_to_subscribers(data)
 
 @app.get(
     "/processed_agent_data/{processed_agent_data_id}",
