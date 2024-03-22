@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from redis import Redis
 import paho.mqtt.client as mqtt
 
@@ -38,18 +38,23 @@ app = FastAPI()
 
 @app.post("/processed_agent_data/")
 async def save_processed_agent_data(processed_agent_data: ProcessedAgentData):
-    redis_client.lpush("processed_agent_data", processed_agent_data.model_dump_json())
-    if redis_client.llen("processed_agent_data") >= BATCH_SIZE:
-        processed_agent_data_batch: List[ProcessedAgentData] = []
-        for _ in range(BATCH_SIZE):
-            processed_agent_data = ProcessedAgentData.model_validate_json(
-                redis_client.lpop("processed_agent_data")
-            )
-            processed_agent_data_batch.append(processed_agent_data)
-        print(processed_agent_data_batch)
-        store_adapter.save_data(processed_agent_data_batch=processed_agent_data_batch)
-    return {"status": "ok"}
+    print("Saving processed agent data...")
 
+    try:
+        redis_client.lpush("processed_agent_data", processed_agent_data.model_dump_json())
+        if redis_client.llen("processed_agent_data") >= BATCH_SIZE:
+            processed_agent_data_batch: List[ProcessedAgentData] = []
+            for _ in range(BATCH_SIZE):
+                processed_agent_data = ProcessedAgentData.model_validate_json(
+                    redis_client.lpop("processed_agent_data")
+                )
+                processed_agent_data_batch.append(processed_agent_data)
+            print(processed_agent_data_batch)
+            store_adapter.save_data(processed_agent_data_batch=processed_agent_data_batch)
+        print("Success!")
+    except Exception as e:
+        print("Error saving processed agent data: ", e)
+        raise HTTPException(status_code=500, detail="Some error occurred")
 
 # MQTT
 client = mqtt.Client()
