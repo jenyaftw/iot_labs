@@ -9,6 +9,7 @@ class MapViewApp(App):
     def __init__(self, **kwargs):
         super().__init__()
         self.datasource = Datasource()
+        self.car_marker = None
 
     def on_start(self):
         """
@@ -40,6 +41,7 @@ class MapViewApp(App):
         if self.car_marker:
             self.car_marker.detach()
         
+        print(point.latitude, point.longitude)
         self.car_marker = MapMarker(lat=point.latitude, lon=point.longitude, source='images/car.png')
         self.mapview.add_marker(self.car_marker)
         self.mapview.center_on(point.latitude, point.longitude)

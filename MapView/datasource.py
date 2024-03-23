@@ -58,9 +58,12 @@ class Datasource:
                 try:
                     while True:
                         data = await websocket.recv()
-                        print(data)
-                        print(f"Received: {data}")
-                        # self.handle_received_data(data)
+                        try:
+                            parsed_data = json.loads(data)
+                            self.handle_received_data(parsed_data)
+                        except json.JSONDecodeError:
+                            print("Received data is not valid JSON:")
+                            print(data)
                 except websockets.ConnectionClosedOK:
                     self.connection_status = "Disconnected"
                     Logger.debug("SERVER DISCONNECT")
@@ -69,8 +72,11 @@ class Datasource:
         # Update your UI or perform actions with received data here
         Logger.debug(f"Received data: {data}")
         sorted_data = sorted(
-            map(lambda item: ProcessedAgentData(**item), data),
-            key=lambda v: v.timestamp
+            [
+                ProcessedAgentData(**processed_data_json)
+                for processed_data_json in json.loads(data)
+            ],
+            key=lambda v: v.agent_data.timestamp
         )
         self._new_data.extend(sorted_data)
         

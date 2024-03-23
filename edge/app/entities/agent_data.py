@@ -13,6 +13,7 @@ class GpsData(BaseModel):
     longitude: float
 
 class AgentData(BaseModel):
+    user_id: int
     accelerometer: AccelerometerData
     gps: GpsData
     timestamp: datetime

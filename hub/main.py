@@ -4,6 +4,7 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from redis import Redis
 import paho.mqtt.client as mqtt
+import scipy
 
 from app.adapters.store_api_adapter import StoreApiAdapter
 from app.entities.processed_agent_data import ProcessedAgentData

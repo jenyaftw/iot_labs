@@ -56,7 +56,7 @@ class FileDatasource:
             split_accel = self.accel_lines[self.accel_line].split(',')
             split_parking = self.parking_lines[self.parking_line].split(',')
 
-            long, lat = split_gps
+            lat, long = split_gps
             data.gps = Gps(long, lat)
 
             x, y, z = split_accel

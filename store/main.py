@@ -16,6 +16,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import select, delete, update
 from datetime import datetime
 from pydantic import BaseModel, field_validator
+from pydantic.json import pydantic_encoder
 from config import (
     POSTGRES_HOST,
     POSTGRES_PORT,
@@ -111,6 +112,7 @@ async def websocket_endpoint(websocket: WebSocket):
 # Function to send data to subscribed users
 async def send_data_to_subscribers(data: List[ProcessedAgentData]):
     for websocket in subscriptions:
+        data = json.dumps(data, default=pydantic_encoder)
         await websocket.send_json(data)
 
 # FastAPI CRUDL endpoints
