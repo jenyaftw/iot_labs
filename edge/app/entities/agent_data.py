@@ -12,7 +12,6 @@ class GpsData(BaseModel):
     latitude: float
     longitude: float
 
-
 class AgentData(BaseModel):
     accelerometer: AccelerometerData
     gps: GpsData
