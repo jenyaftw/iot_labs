@@ -3,7 +3,7 @@ import logging
 import requests as requests
 from paho.mqtt import client as mqtt_client
 
-from app.entities.processed_agent_data import ProcessedAgentData
+from app.entities.agent_data import AgentData
 from app.interfaces.hub_gateway import HubGateway
 
 
@@ -14,15 +14,15 @@ class HubMqttAdapter(HubGateway):
         self.topic = topic
         self.mqtt_client = self._connect_mqtt(broker, port)
 
-    def save_data(self, processed_data: ProcessedAgentData):
+    def save_data(self, agent_data: AgentData):
         """
-        Save the processed road data to the Hub.
+        Save agent data to the Hub.
         Parameters:
-            processed_data (ProcessedAgentData): Processed road data to be saved.
+            agent_data (AgentData): Agent data to be processed and saved.
         Returns:
             bool: True if the data is successfully saved, False otherwise.
         """
-        msg = processed_data.model_dump_json()
+        msg = agent_data.model_dump_json()
         result = self.mqtt_client.publish(self.topic, msg)
         status = result[0]
         if status == 0:

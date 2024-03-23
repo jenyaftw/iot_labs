@@ -1,7 +1,6 @@
 from app.entities.agent_data import AgentData
 from app.entities.processed_agent_data import ProcessedAgentData
 
-
 def process_agent_data(
     agent_data: AgentData,
 ) -> ProcessedAgentData:

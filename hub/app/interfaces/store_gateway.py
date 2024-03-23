@@ -10,11 +10,11 @@ class StoreGateway(ABC):
     """
 
     @abstractmethod
-    def save_data(self, processed_agent_data_batch: List[ProcessedAgentData]) -> bool:
+    def save_data(self, processed_data_batch: List[ProcessedAgentData]) -> bool:
         """
         Method to save the processed agent data in the database.
         Parameters:
-            processed_agent_data_batch (ProcessedAgentData): The processed agent data to be saved.
+            processed_data_batch (ProcessedAgentData): The processed agent data to be saved.
         Returns:
             bool: True if the data is successfully saved, False otherwise.
         """

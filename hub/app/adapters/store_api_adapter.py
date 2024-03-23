@@ -9,18 +9,17 @@ from datetime import datetime
 from app.entities.processed_agent_data import ProcessedAgentData
 from app.interfaces.store_gateway import StoreGateway
 
-
 class StoreApiAdapter(StoreGateway):
     def __init__(self, api_base_url):
         self.api_base_url = api_base_url
 
-    def save_data(self, processed_agent_data_batch: List[ProcessedAgentData]):
+    def save_data(self, processed_data_batch: List[ProcessedAgentData]):
         url = f"{self.api_base_url}/processed_agent_data/"
 
         headers = {'Content-Type': 'application/json'}
 
         data = []
-        for processed_agent_data in processed_agent_data_batch:
+        for processed_agent_data in processed_data_batch:
             timestamp = processed_agent_data.agent_data.timestamp.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             processed_agent_data.agent_data.timestamp = timestamp
             data.append(processed_agent_data.dict())
