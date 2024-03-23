@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from app.entities.processed_agent_data import ProcessedAgentData
+from app.entities.processed_agent_data import AgentData
 
 class HubGateway(ABC):
     """

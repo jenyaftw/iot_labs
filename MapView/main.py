@@ -22,7 +22,9 @@ class MapViewApp(App):
         """
         new_data, last_gps = self.datasource.get_new_data()
         
-        self.update_car_marker(last_gps)
+        if last_gps:
+            print("Updating")
+            self.update_car_marker(last_gps)
         
         for data in new_data:
             if data.road_state == "bump":

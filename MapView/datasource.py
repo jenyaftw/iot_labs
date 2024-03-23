@@ -57,8 +57,10 @@ class Datasource:
                 self.connection_status = "Connected"
                 try:
                     while True:
-                        data = await websocket.receive_json()
-                        self.handle_received_data(data)
+                        data = await websocket.recv()
+                        print(data)
+                        print(f"Received: {data}")
+                        # self.handle_received_data(data)
                 except websockets.ConnectionClosedOK:
                     self.connection_status = "Disconnected"
                     Logger.debug("SERVER DISCONNECT")
@@ -75,6 +77,8 @@ class Datasource:
     def get_new_data(self):
         Logger.debug(self._new_data)
         new_data = self._new_data
-        last_gps = self._new_data[-1].agent_data.gps
+        last_gps = None
+        if len(self._new_data) > 0:
+            last_gps = self._new_data[-1].agent_data.gps
         self._new_data = []
         return new_data, last_gps

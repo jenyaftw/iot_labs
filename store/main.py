@@ -45,7 +45,7 @@ processed_agent_data = Table(
     Column("timestamp", DateTime),
 )
 SessionLocal = sessionmaker(bind=engine)
-
+metadata.create_all(engine)
 
 # SQLAlchemy model
 class ProcessedAgentDataInDB(BaseModel):

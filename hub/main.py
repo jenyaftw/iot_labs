@@ -37,7 +37,7 @@ store_adapter = StoreApiAdapter(api_base_url=STORE_API_BASE_URL)
 app = FastAPI()
 
 
-@app.post("/processed_agent_data/")
+@app.post("/agent_data/")
 async def process_and_save_agent_data(agent_data: AgentData):
     redis_client.lpush("agent_data", agent_data.model_dump_json())
     if redis_client.llen("agent_data") >= BATCH_SIZE:
