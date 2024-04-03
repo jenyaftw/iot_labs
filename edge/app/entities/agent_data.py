@@ -12,10 +12,15 @@ class GpsData(BaseModel):
     latitude: float
     longitude: float
 
+class SensorData(BaseModel):
+    temperature: float
+    aqi: int
+
 class AgentData(BaseModel):
     user_id: int
     accelerometer: AccelerometerData
     gps: GpsData
+    sensors: SensorData
     timestamp: datetime
 
     @classmethod

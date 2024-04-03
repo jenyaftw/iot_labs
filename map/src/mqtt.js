@@ -1,5 +1,5 @@
 import mqtt from 'mqtt';
-const websocketUrl = 'ws://localhost:9001/mqtt';
+const websocketUrl = 'ws://mqtt-dashboard.com:8000/mqtt';
 
 function getClient(errorHandler) {
   const client = mqtt.connect(websocketUrl);

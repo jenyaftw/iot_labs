@@ -38,6 +38,8 @@ processed_agent_data = Table(
     Column("id", Integer, primary_key=True, index=True),
     Column("road_state", String),
     Column("user_id", Integer),
+    Column("aqi", Integer),
+    Column("temperature", Float),
     Column("x", Float),
     Column("y", Float),
     Column("z", Float),
@@ -60,7 +62,6 @@ class ProcessedAgentDataInDB(BaseModel):
     longitude: float
     timestamp: datetime
 
-
 # FastAPI models
 class AccelerometerData(BaseModel):
     x: float
@@ -72,11 +73,15 @@ class GpsData(BaseModel):
     latitude: float
     longitude: float
 
+class SensorData(BaseModel):
+    temperature: float
+    aqi: int
 
 class AgentData(BaseModel):
     user_id: int
     accelerometer: AccelerometerData
     gps: GpsData
+    sensors: SensorData
     timestamp: datetime
 
     @classmethod
@@ -127,6 +132,8 @@ async def create_processed_agent_data(data: List[ProcessedAgentData]):
             query = processed_agent_data.insert().values(
                 road_state=item.road_state,
                 user_id=item.agent_data.user_id,
+                aqi=item.agent_data.sensors.aqi,
+                temperature=item.agent_data.sensors.temperature,
                 x=item.agent_data.accelerometer.x,
                 y=item.agent_data.accelerometer.y,
                 z=item.agent_data.accelerometer.z,
@@ -213,6 +220,8 @@ def update_processed_agent_data(processed_agent_data_id: int, data: ProcessedAge
         ).values(
             road_state=data.road_state,
             user_id=data.agent_data.user_id,
+            aqi=data.agent_data.sensors.aqi,
+            temperature=data.agent_data.sensors.temperature,
             x=data.agent_data.accelerometer.x,
             y=data.agent_data.accelerometer.y,
             z=data.agent_data.accelerometer.z,
