@@ -1,0 +1,21 @@
+
+.thermometer {
+    position: absolute;
+    bottom: 20px;
+    right: 50px;
+}
+
+.map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.air {
+    position: absolute;
+    bottom: -30px;
+    left: 50px;
+    z-index: 1;
+}
