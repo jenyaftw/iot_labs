@@ -1,3 +1,24 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    overflow: hidden;
+    font-size: 16px;
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 768px) {
+
+    html,
+    body {
+        font-size: 14px;
+    }
+}
+
 .map {
     position: absolute;
     top: 0;
@@ -9,8 +30,26 @@
 .air {
     position: absolute;
     bottom: -30px;
-    left: 50px;
+    left: 20px;
     z-index: 1;
+}
+
+/* Mobile air quality speedometer */
+@media (max-width: 768px) {
+    .air {
+        bottom: -20px;
+        left: 10px;
+        transform: scale(0.7);
+        transform-origin: bottom left;
+    }
+}
+
+@media (max-width: 480px) {
+    .air {
+        transform: scale(0.6);
+        bottom: -10px;
+        left: 5px;
+    }
 }
 
 .status {
@@ -18,11 +57,35 @@
     top: 20px;
     right: 20px;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     min-width: 200px;
+    max-width: 280px;
+}
+
+/* Mobile status panel */
+@media (max-width: 768px) {
+    .status {
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        min-width: 160px;
+        max-width: 200px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .status {
+        top: 5px;
+        right: 5px;
+        padding: 8px;
+        min-width: 140px;
+        max-width: 180px;
+        font-size: 0.8em;
+    }
 }
 
 .status-indicator {
@@ -35,6 +98,7 @@
 
 .status-indicator span {
     padding: 2px 0;
+    word-break: break-word;
 }
 
 .status-indicator.online {
@@ -50,11 +114,35 @@
     top: 20px;
     left: 20px;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     min-width: 220px;
+    max-width: 280px;
+}
+
+/* Mobile accelerometer panel */
+@media (max-width: 768px) {
+    .accelerometer {
+        top: 10px;
+        left: 10px;
+        padding: 10px;
+        min-width: 180px;
+        max-width: 220px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .accelerometer {
+        top: 5px;
+        left: 5px;
+        padding: 8px;
+        min-width: 160px;
+        max-width: 200px;
+        font-size: 0.8em;
+    }
 }
 
 .accelerometer-panel h3 {
@@ -92,11 +180,34 @@
     bottom: 20px;
     right: 50px;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     min-width: 300px;
+    max-width: 350px;
+}
+
+/* Mobile accelerometer bar */
+@media (max-width: 768px) {
+    .accelerometer-bar {
+        bottom: 15px;
+        right: 10px;
+        padding: 10px;
+        min-width: 250px;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .accelerometer-bar {
+        bottom: 10px;
+        right: 5px;
+        padding: 8px;
+        min-width: 200px;
+        max-width: 230px;
+        font-size: 0.9em;
+    }
 }
 
 .bar-container {
@@ -120,6 +231,12 @@
     background: #e0e0e0;
     border-radius: 15px;
     overflow: hidden;
+}
+
+@media (max-width: 480px) {
+    .bar-wrapper {
+        height: 25px;
+    }
 }
 
 .bar-fill {
@@ -163,6 +280,29 @@
     max-width: 320px;
 }
 
+/* Mobile trip controls */
+@media (max-width: 768px) {
+    .trip-controls {
+        bottom: 120px;
+        right: 10px;
+        left: 10px;
+        padding: 15px;
+        min-width: auto;
+        max-width: none;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .trip-controls {
+        bottom: 100px;
+        right: 5px;
+        left: 5px;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+}
+
 .trip-panel h3 {
     margin: 0 0 15px 0;
     font-family: 'Arial', sans-serif;
@@ -179,6 +319,13 @@
     flex-wrap: wrap;
 }
 
+@media (max-width: 480px) {
+    .trip-buttons {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+}
+
 .start-trip-btn,
 .stop-trip-btn,
 .download-btn {
@@ -192,6 +339,19 @@
     transition: all 0.3s ease;
     flex: 1;
     min-width: 100px;
+    touch-action: manipulation;
+}
+
+@media (max-width: 480px) {
+
+    .start-trip-btn,
+    .stop-trip-btn,
+    .download-btn {
+        padding: 12px 16px;
+        font-size: 16px;
+        min-width: 120px;
+        min-height: 44px;
+    }
 }
 
 .start-trip-btn {
@@ -199,7 +359,8 @@
     color: white;
 }
 
-.start-trip-btn:hover {
+.start-trip-btn:hover,
+.start-trip-btn:active {
     background: #45a049;
     transform: translateY(-1px);
 }
@@ -209,7 +370,8 @@
     color: white;
 }
 
-.stop-trip-btn:hover {
+.stop-trip-btn:hover,
+.stop-trip-btn:active {
     background: #da190b;
     transform: translateY(-1px);
 }
@@ -221,7 +383,8 @@
     min-width: 120px;
 }
 
-.download-btn:hover {
+.download-btn:hover,
+.download-btn:active {
     background: #1976D2;
     transform: translateY(-1px);
 }
@@ -305,6 +468,19 @@
     transition: all 0.3s ease;
     flex: 1;
     min-width: 100px;
+    touch-action: manipulation;
+}
+
+@media (max-width: 480px) {
+
+    .history-btn,
+    .back-btn,
+    .delete-btn {
+        padding: 12px 16px;
+        font-size: 16px;
+        min-width: 120px;
+        min-height: 44px;
+    }
 }
 
 .history-btn {
@@ -312,7 +488,8 @@
     color: white;
 }
 
-.history-btn:hover {
+.history-btn:hover,
+.history-btn:active {
     background: #7B1FA2;
     transform: translateY(-1px);
 }
@@ -322,7 +499,8 @@
     color: white;
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.back-btn:active {
     background: #455A64;
     transform: translateY(-1px);
 }
@@ -332,7 +510,8 @@
     color: white;
 }
 
-.delete-btn:hover {
+.delete-btn:hover,
+.delete-btn:active {
     background: #d32f2f;
     transform: translateY(-1px);
 }
@@ -348,6 +527,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .trip-history-overlay {
+        padding: 10px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
 }
 
 .trip-history-modal {
@@ -362,6 +550,23 @@
     flex-direction: column;
 }
 
+@media (max-width: 768px) {
+    .trip-history-modal {
+        width: 95%;
+        max-height: 85vh;
+        border-radius: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trip-history-modal {
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 0;
+        height: 100vh;
+    }
+}
+
 .modal-header {
     padding: 20px 25px;
     border-bottom: 2px solid #eee;
@@ -369,6 +574,12 @@
     justify-content: space-between;
     align-items: center;
     background: #f8f9fa;
+}
+
+@media (max-width: 480px) {
+    .modal-header {
+        padding: 15px 20px;
+    }
 }
 
 .modal-header h2 {
@@ -392,9 +603,19 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
-.close-btn:hover {
+@media (max-width: 480px) {
+    .close-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 32px;
+    }
+}
+
+.close-btn:hover,
+.close-btn:active {
     background: #e0e0e0;
     color: #333;
 }
@@ -403,6 +624,12 @@
     padding: 20px 25px;
     overflow-y: auto;
     flex: 1;
+}
+
+@media (max-width: 480px) {
+    .trip-list {
+        padding: 15px 20px;
+    }
 }
 
 .no-trips {
@@ -425,7 +652,17 @@
     transition: all 0.2s ease;
 }
 
-.trip-item:hover {
+@media (max-width: 768px) {
+    .trip-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+    }
+}
+
+.trip-item:hover,
+.trip-item:active {
     background: #f0f0f0;
     border-color: #ccc;
 }
@@ -448,6 +685,14 @@
     font-family: 'Arial', sans-serif;
     font-size: 12px;
     color: #666;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+    .trip-summary {
+        gap: 8px;
+        font-size: 11px;
+    }
 }
 
 .trip-summary span {
@@ -463,6 +708,13 @@
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    .trip-actions {
+        justify-content: center;
+        gap: 15px;
+    }
+}
+
 .view-btn {
     background: #4CAF50;
     color: white;
@@ -474,9 +726,19 @@
     font-size: 12px;
     font-weight: bold;
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
-.view-btn:hover {
+@media (max-width: 480px) {
+    .view-btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-height: 44px;
+    }
+}
+
+.view-btn:hover,
+.view-btn:active {
     background: #45a049;
     transform: translateY(-1px);
 }
@@ -490,9 +752,20 @@
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
-.delete-small-btn:hover {
+@media (max-width: 480px) {
+    .delete-small-btn {
+        padding: 12px 16px;
+        font-size: 16px;
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+.delete-small-btn:hover,
+.delete-small-btn:active {
     background: #d32f2f;
     transform: scale(1.1);
 }
