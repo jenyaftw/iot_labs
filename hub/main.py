@@ -56,29 +56,9 @@ async def process_and_save_agent_data(agent_data: AgentData):
 def process_agent_data(agent_data_batch: List[AgentData]):
     processed_data_batch = []
     
-    z_values = list(map(lambda item: item.accelerometer.z, agent_data_batch))
-    bumps_indices, _ = scipy.signal.find_peaks(z_values, prominence=7000, width=3)
-    bumps = list(map(
-        lambda i: agent_data_batch[i].gps,
-        bumps_indices
-    ))
-        
-    inverted_z_values = list(map(lambda z: -z, z_values))
-    potholes_indices, _ = scipy.signal.find_peaks(inverted_z_values, prominence=7000, width=3)
-    potholes = list(map(
-        lambda i: agent_data_batch[i].gps,
-        potholes_indices
-    ))
-    
-    for i, val in enumerate(agent_data_batch):
-        road_state = "normal"
-        if i in bumps_indices:
-            road_state = "bump"
-        if i in potholes_indices:
-            road_state = "pothole"
-
+    for val in agent_data_batch:
         processed_data_batch.append(
-            ProcessedAgentData(road_state=road_state, agent_data=val)
+            ProcessedAgentData(agent_data=val)
         )
     
     return processed_data_batch

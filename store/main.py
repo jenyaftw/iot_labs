@@ -36,15 +36,14 @@ processed_agent_data = Table(
     "processed_agent_data",
     metadata,
     Column("id", Integer, primary_key=True, index=True),
-    Column("road_state", String),
-    Column("user_id", Integer),
-    Column("aqi", Integer),
-    Column("temperature", Float),
+    Column("user_id", Integer, nullable=False),
     Column("x", Float),
     Column("y", Float),
     Column("z", Float),
     Column("latitude", Float),
     Column("longitude", Float),
+    Column("aqi", Integer),
+    Column("rssi", Integer),
     Column("timestamp", DateTime),
 )
 SessionLocal = sessionmaker(bind=engine)
@@ -53,13 +52,14 @@ metadata.create_all(engine)
 # SQLAlchemy model
 class ProcessedAgentDataInDB(BaseModel):
     id: int
-    road_state: str
     user_id: int
     x: float
     y: float
     z: float
     latitude: float
     longitude: float
+    aqi: int
+    rssi: int
     timestamp: datetime
 
 # FastAPI models
@@ -74,8 +74,8 @@ class GpsData(BaseModel):
     longitude: float
 
 class SensorData(BaseModel):
-    temperature: float
     aqi: int
+    rssi: int
 
 class AgentData(BaseModel):
     user_id: int
@@ -97,7 +97,6 @@ class AgentData(BaseModel):
             )
 
 class ProcessedAgentData(BaseModel):
-    road_state: str
     agent_data: AgentData
 
 # WebSocket subscriptions
@@ -130,15 +129,14 @@ async def create_processed_agent_data(data: List[ProcessedAgentData]):
     with SessionLocal() as session:
         for item in data:
             query = processed_agent_data.insert().values(
-                road_state=item.road_state,
                 user_id=item.agent_data.user_id,
-                aqi=item.agent_data.sensors.aqi,
-                temperature=item.agent_data.sensors.temperature,
                 x=item.agent_data.accelerometer.x,
                 y=item.agent_data.accelerometer.y,
                 z=item.agent_data.accelerometer.z,
                 latitude=item.agent_data.gps.latitude,
                 longitude=item.agent_data.gps.longitude,
+                aqi=item.agent_data.sensors.aqi,
+                rssi=item.agent_data.sensors.rssi,
                 timestamp=item.agent_data.timestamp,
             )
             session.execute(query)
@@ -218,15 +216,14 @@ def update_processed_agent_data(processed_agent_data_id: int, data: ProcessedAge
         query = update(processed_agent_data).where(
             processed_agent_data.c.id == processed_agent_data_id
         ).values(
-            road_state=data.road_state,
             user_id=data.agent_data.user_id,
-            aqi=data.agent_data.sensors.aqi,
-            temperature=data.agent_data.sensors.temperature,
             x=data.agent_data.accelerometer.x,
             y=data.agent_data.accelerometer.y,
             z=data.agent_data.accelerometer.z,
             latitude=data.agent_data.gps.latitude,
-            longitude=data.agent_data.gps.latitude,
+            longitude=data.agent_data.gps.longitude,
+            aqi=data.agent_data.sensors.aqi,
+            rssi=data.agent_data.sensors.rssi,
             timestamp=data.agent_data.timestamp,
         )
 

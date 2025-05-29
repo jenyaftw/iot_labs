@@ -14,8 +14,8 @@ class GpsData(BaseModel):
 
 
 class SensorData(BaseModel):
-    temperature: float
     aqi: int
+    rssi: int
 
 class AgentData(BaseModel):
     user_id: int
