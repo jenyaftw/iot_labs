@@ -223,6 +223,12 @@ function App() {
           setLong(gps.longitude);
           setLat(gps.latitude);
           setGpsValid(true);
+
+          // If we just started recording and this is the first valid GPS point, add it to path
+          if (isRecording && tripPath.length === 0) {
+            console.log('Adding first GPS point to trip path:', [gps.longitude, gps.latitude]);
+            setTripPath([[gps.longitude, gps.latitude]]);
+          }
         } else {
           setGpsValid(false);
         }
@@ -298,15 +304,27 @@ function App() {
                 battery: battery || 0
               };
 
+              console.log('Recording trip point:', newPoint);
+              console.log('GPS valid:', gps && gps.valid);
+              console.log('GPS coordinates:', gps?.latitude, gps?.longitude);
+
               // Update trip path for map display
               if (gps && gps.valid) {
-                setTripPath(prevPath => [...prevPath, [gps.longitude, gps.latitude]]);
+                setTripPath(prevPath => {
+                  const newPath = [...prevPath, [gps.longitude, gps.latitude]];
+                  console.log('Updated trip path length:', newPath.length);
+                  console.log('Latest path point:', [gps.longitude, gps.latitude]);
+                  console.log('Current trip path:', newPath);
+                  return newPath;
+                });
 
                 // Update distance stats
                 setTripStats(prevStats => ({
                   ...prevStats,
                   distance: prevStats.distance + newDistance
                 }));
+              } else {
+                console.log('GPS not valid, not adding to path');
               }
 
               return [...prevData, newPoint];
@@ -348,6 +366,11 @@ function App() {
           mapStyle="https://api.maptiler.com/maps/streets/style.json?key=DZ3M3QFwgoHbaT8TjMkf"
         >
           {/* Trip path visualization */}
+          {(() => {
+            console.log('Rendering map - viewMode:', viewMode, 'tripPath.length:', tripPath.length, 'isRecording:', isRecording);
+            console.log('Should show path:', viewMode === 'live' && tripPath.length > 1);
+            return null;
+          })()}
           {viewMode === 'live' && tripPath.length > 1 && (
             <Source
               id="trip-path"
@@ -366,12 +389,35 @@ function App() {
                 type="line"
                 paint={{
                   'line-color': '#ff6b35',
-                  'line-width': 4,
-                  'line-opacity': 0.8
+                  'line-width': 6,
+                  'line-opacity': 1.0
+                }}
+                layout={{
+                  'line-join': 'round',
+                  'line-cap': 'round'
                 }}
               />
             </Source>
           )}
+
+          {/* Fallback: Show path points as individual markers if line doesn't work */}
+          {viewMode === 'live' && tripPath.length > 1 && tripPath.map((coord, index) => (
+            index > 0 && (
+              <Marker
+                key={`path-point-${index}`}
+                longitude={coord[0]}
+                latitude={coord[1]}
+              >
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: '#ff6b35',
+                  borderRadius: '50%',
+                  border: '2px solid white'
+                }} />
+              </Marker>
+            )
+          ))}
 
           {/* Historical trip path */}
           {viewMode === 'history' && selectedTrip && selectedTrip.path.length > 1 && (
@@ -564,6 +610,18 @@ function App() {
                 <div className="stat-row">
                   <span>Distance:</span>
                   <span>{tripStats.distance.toFixed(2)} km</span>
+                </div>
+                <div className="stat-row">
+                  <span>Path Points:</span>
+                  <span>{tripPath.length}</span>
+                </div>
+                <div className="stat-row">
+                  <span>GPS Valid:</span>
+                  <span>{gpsValid ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="stat-row">
+                  <span>View Mode:</span>
+                  <span>{viewMode}</span>
                 </div>
                 {tripData.length > 0 && (
                   <>
