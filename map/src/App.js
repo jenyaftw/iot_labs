@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import mqttService from './mqtt';
 import Map, { Marker, Source, Layer } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -17,8 +17,11 @@ function App() {
   const [gpsValid, setGpsValid] = useState(false);
   const [accelerometer, setAccelerometer] = useState({ x: 0, y: 0, z: 0, magnitude: 0 });
 
-  // Trip recording states
+  // Add ref for recording state
+  const isRecordingRef = useRef(false);
   const [isRecording, setIsRecording] = useState(false);
+
+  // Trip recording states
   const [tripData, setTripData] = useState([]);
   const [tripPath, setTripPath] = useState([]);
   const [currentSpeed, setCurrentSpeed] = useState(0);
@@ -95,6 +98,7 @@ function App() {
   };
 
   const startTrip = () => {
+    isRecordingRef.current = true;
     setIsRecording(true);
     setTripStartTime(Date.now());
     setTripData([]);
@@ -111,6 +115,7 @@ function App() {
   };
 
   const stopTrip = () => {
+    isRecordingRef.current = false;
     setIsRecording(false);
     if (tripData.length > 0) {
       // Calculate final trip statistics
@@ -220,16 +225,44 @@ function App() {
 
         // Handle GPS data
         if (gps && gps.valid) {
+          console.log('Received valid GPS data:', gps);
           setLong(gps.longitude);
           setLat(gps.latitude);
           setGpsValid(true);
 
-          // If we just started recording and this is the first valid GPS point, add it to path
-          if (isRecording && tripPath.length === 0) {
-            console.log('Adding first GPS point to trip path:', [gps.longitude, gps.latitude]);
-            setTripPath([[gps.longitude, gps.latitude]]);
+          // Record path point if recording is active and GPS is valid
+          if (isRecordingRef.current) {
+            console.log('Recording is active (ref), adding GPS point to path:', [gps.longitude, gps.latitude]);
+            setTripPath(prevPath => {
+              const newPath = [...prevPath, [gps.longitude, gps.latitude]];
+              console.log('Previous path length:', prevPath.length);
+              console.log('New path length:', newPath.length);
+              console.log('Full path:', newPath);
+              return newPath;
+            });
+
+            // Update distance stats
+            setTripStats(prevStats => {
+              const lastPathPoint = tripPath[tripPath.length - 1];
+              let newDistance = 0;
+
+              if (lastPathPoint && lastPathPoint.length === 2) {
+                newDistance = calculateDistance(
+                  lastPathPoint[1], lastPathPoint[0], // lat, lon
+                  gps.latitude, gps.longitude
+                );
+              }
+
+              return {
+                ...prevStats,
+                distance: prevStats.distance + newDistance
+              };
+            });
+          } else {
+            console.log('Recording is not active (ref), skipping path update');
           }
         } else {
+          console.log('Invalid or missing GPS data:', gps);
           setGpsValid(false);
         }
 
@@ -259,12 +292,11 @@ function App() {
           setAccelerometer(newAccelData);
           setTemp((magnitude).toFixed(2));
 
-          // Trip recording logic
-          if (isRecording) {
+          // Trip recording logic for accelerometer data
+          if (isRecordingRef.current) {
             setTripData(prevData => {
               const lastPoint = prevData[prevData.length - 1];
               let newSpeed = 0;
-              let newDistance = 0;
 
               if (lastPoint) {
                 const deltaTime = timestamp - lastPoint.timestamp;
@@ -282,14 +314,6 @@ function App() {
                   // Fallback to accelerometer-based calculation
                   newSpeed = calculateSpeedFromAccel(newAccelData, lastPoint.speed, deltaTime);
                 }
-
-                // Calculate distance if GPS is valid
-                if (gps && gps.valid && lastPoint.latitude && lastPoint.longitude) {
-                  newDistance = calculateDistance(
-                    lastPoint.latitude, lastPoint.longitude,
-                    gps.latitude, gps.longitude
-                  );
-                }
               }
 
               setCurrentSpeed(newSpeed);
@@ -305,44 +329,9 @@ function App() {
               };
 
               console.log('Recording trip point:', newPoint);
-              console.log('GPS valid:', gps && gps.valid);
-              console.log('GPS coordinates:', gps?.latitude, gps?.longitude);
-
               return [...prevData, newPoint];
             });
           }
-        }
-
-        // Trip path recording - separate from accelerometer data, records GPS continuously
-        if (isRecording && gps && gps.valid) {
-          console.log('Adding GPS point to path:', [gps.longitude, gps.latitude]);
-          setTripPath(prevPath => {
-            const newPath = [...prevPath, [gps.longitude, gps.latitude]];
-            console.log('Updated trip path length:', newPath.length);
-            console.log('Latest path point:', [gps.longitude, gps.latitude]);
-            console.log('Current trip path:', newPath);
-            return newPath;
-          });
-
-          // Update distance stats - moved outside accelerometer condition
-          setTripStats(prevStats => {
-            const lastPathPoint = tripPath[tripPath.length - 1];
-            let newDistance = 0;
-
-            if (lastPathPoint && lastPathPoint.length === 2) {
-              newDistance = calculateDistance(
-                lastPathPoint[1], lastPathPoint[0], // lat, lon
-                gps.latitude, gps.longitude
-              );
-            }
-
-            return {
-              ...prevStats,
-              distance: prevStats.distance + newDistance
-            };
-          });
-        } else if (isRecording) {
-          console.log('GPS not valid, not adding to path');
         }
       } else if (topic === 'lora/sensor/status') {
         setSensorStatus(mqttMessage);
