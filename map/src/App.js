@@ -308,28 +308,41 @@ function App() {
               console.log('GPS valid:', gps && gps.valid);
               console.log('GPS coordinates:', gps?.latitude, gps?.longitude);
 
-              // Update trip path for map display
-              if (gps && gps.valid) {
-                setTripPath(prevPath => {
-                  const newPath = [...prevPath, [gps.longitude, gps.latitude]];
-                  console.log('Updated trip path length:', newPath.length);
-                  console.log('Latest path point:', [gps.longitude, gps.latitude]);
-                  console.log('Current trip path:', newPath);
-                  return newPath;
-                });
-
-                // Update distance stats
-                setTripStats(prevStats => ({
-                  ...prevStats,
-                  distance: prevStats.distance + newDistance
-                }));
-              } else {
-                console.log('GPS not valid, not adding to path');
-              }
-
               return [...prevData, newPoint];
             });
           }
+        }
+
+        // Trip path recording - separate from accelerometer data, records GPS continuously
+        if (isRecording && gps && gps.valid) {
+          console.log('Adding GPS point to path:', [gps.longitude, gps.latitude]);
+          setTripPath(prevPath => {
+            const newPath = [...prevPath, [gps.longitude, gps.latitude]];
+            console.log('Updated trip path length:', newPath.length);
+            console.log('Latest path point:', [gps.longitude, gps.latitude]);
+            console.log('Current trip path:', newPath);
+            return newPath;
+          });
+
+          // Update distance stats - moved outside accelerometer condition
+          setTripStats(prevStats => {
+            const lastPathPoint = tripPath[tripPath.length - 1];
+            let newDistance = 0;
+
+            if (lastPathPoint && lastPathPoint.length === 2) {
+              newDistance = calculateDistance(
+                lastPathPoint[1], lastPathPoint[0], // lat, lon
+                gps.latitude, gps.longitude
+              );
+            }
+
+            return {
+              ...prevStats,
+              distance: prevStats.distance + newDistance
+            };
+          });
+        } else if (isRecording) {
+          console.log('GPS not valid, not adding to path');
         }
       } else if (topic === 'lora/sensor/status') {
         setSensorStatus(mqttMessage);
